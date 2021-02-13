@@ -50,11 +50,19 @@ func FLBPluginInit(p unsafe.Pointer) int {
 	for i := 0; i < ParamNumMax; i++ {
 		param, err := getParameter(p, ConfigExistKeyName, i)
 		if err == nil {
-			cnf.SetKey(param, true)
+			p, err := NewConfigLine(param)
+			if err != nil {
+				continue
+			}
+			cnf.SetExist(p, true)
 		}
 		param, err = getParameter(p, ConfigNotExistKeyName, i)
 		if err == nil {
-			cnf.SetKey(param, false)
+			p, err := NewConfigLine(param)
+			if err != nil {
+				continue
+			}
+			cnf.SetExist(p, false)
 		}
 	}
 

@@ -17,6 +17,7 @@
 package main
 
 import (
+	"go/types"
 	"testing"
 )
 
@@ -175,4 +176,172 @@ func TestMatchString(t *testing.T) {
 	testMatch(t, c, "one two three", false)
 	testMatch(t, c, "four", true)
 
+}
+
+func TestMatchInt(t *testing.T) {
+	// true case
+	c, err := NewIntCondition(CaseEq, 100)
+	if err != nil {
+		t.Fatalf("NewIntCondition err:%s", err)
+	}
+	testMatch(t, c, 100, true)
+	testMatch(t, c, 10, false)
+
+	c, err = NewIntCondition(CaseNe, 100)
+	if err != nil {
+		t.Fatalf("NewIntCondition err:%s", err)
+	}
+	testMatch(t, c, 100, false)
+	testMatch(t, c, 10, true)
+
+	c, err = NewIntCondition(CaseGt, 100)
+	if err != nil {
+		t.Fatalf("NewIntCondition err:%s", err)
+	}
+	testMatch(t, c, 100, false)
+	testMatch(t, c, 10, false)
+	testMatch(t, c, 1000, true)
+
+	c, err = NewIntCondition(CaseGe, 100)
+	if err != nil {
+		t.Fatalf("NewIntCondition err:%s", err)
+	}
+	testMatch(t, c, 100, true)
+	testMatch(t, c, 10, false)
+	testMatch(t, c, 1000, true)
+
+	c, err = NewIntCondition(CaseLt, 100)
+	if err != nil {
+		t.Fatalf("NewIntCondition err:%s", err)
+	}
+	testMatch(t, c, 100, false)
+	testMatch(t, c, 10, true)
+	testMatch(t, c, 1000, false)
+
+	c, err = NewIntCondition(CaseLe, 100)
+	if err != nil {
+		t.Fatalf("NewIntCondition err:%s", err)
+	}
+	testMatch(t, c, 100, true)
+	testMatch(t, c, 10, true)
+	testMatch(t, c, 1000, false)
+}
+
+func TestMatchUint(t *testing.T) {
+	// true case
+	c, err := NewUintCondition(CaseEq, 100)
+	if err != nil {
+		t.Fatalf("NewUintCondition err:%s", err)
+	}
+	testMatch(t, c, uint(100), true)
+	testMatch(t, c, uint(10), false)
+
+	c, err = NewUintCondition(CaseNe, 100)
+	if err != nil {
+		t.Fatalf("NewUintCondition err:%s", err)
+	}
+	testMatch(t, c, uint(100), false)
+	testMatch(t, c, uint(10), true)
+
+	c, err = NewUintCondition(CaseGt, 100)
+	if err != nil {
+		t.Fatalf("NewUintCondition err:%s", err)
+	}
+	testMatch(t, c, uint(100), false)
+	testMatch(t, c, uint(10), false)
+	testMatch(t, c, uint(1000), true)
+
+	c, err = NewUintCondition(CaseGe, 100)
+	if err != nil {
+		t.Fatalf("NewUintCondition err:%s", err)
+	}
+	testMatch(t, c, uint(100), true)
+	testMatch(t, c, uint(10), false)
+	testMatch(t, c, uint(1000), true)
+
+	c, err = NewUintCondition(CaseLt, 100)
+	if err != nil {
+		t.Fatalf("NewUintCondition err:%s", err)
+	}
+	testMatch(t, c, uint(100), false)
+	testMatch(t, c, uint(10), true)
+	testMatch(t, c, uint(1000), false)
+
+	c, err = NewUintCondition(CaseLe, 100)
+	if err != nil {
+		t.Fatalf("NewUintCondition err:%s", err)
+	}
+	testMatch(t, c, uint(100), true)
+	testMatch(t, c, uint(10), true)
+	testMatch(t, c, uint(1000), false)
+}
+
+func TestMatchDouble(t *testing.T) {
+	// true case
+	c, err := NewDoubleCondition(CaseEq, 100)
+	if err != nil {
+		t.Fatalf("NewDoubleCondition err:%s", err)
+	}
+	testMatch(t, c, 100.0, true)
+	testMatch(t, c, 10.0, false)
+
+	c, err = NewDoubleCondition(CaseNe, 100)
+	if err != nil {
+		t.Fatalf("NewDoubleCondition err:%s", err)
+	}
+	testMatch(t, c, 100.0, false)
+	testMatch(t, c, 10.0, true)
+
+	c, err = NewDoubleCondition(CaseGt, 100)
+	if err != nil {
+		t.Fatalf("NewDoubleCondition err:%s", err)
+	}
+	testMatch(t, c, 100.0, false)
+	testMatch(t, c, 10.0, false)
+	testMatch(t, c, 1000.0, true)
+
+	c, err = NewDoubleCondition(CaseGe, 100)
+	if err != nil {
+		t.Fatalf("NewDoubleCondition err:%s", err)
+	}
+	testMatch(t, c, 100.0, true)
+	testMatch(t, c, 10.0, false)
+	testMatch(t, c, 1000.0, true)
+
+	c, err = NewDoubleCondition(CaseLt, 100)
+	if err != nil {
+		t.Fatalf("NewDoubleCondition err:%s", err)
+	}
+	testMatch(t, c, 100.0, false)
+	testMatch(t, c, 10.0, true)
+	testMatch(t, c, 1000.0, false)
+
+	c, err = NewDoubleCondition(CaseLe, 100)
+	if err != nil {
+		t.Fatalf("NewDoubleCondition err:%s", err)
+	}
+	testMatch(t, c, 100.0, true)
+	testMatch(t, c, 10.0, true)
+	testMatch(t, c, 1000.0, false)
+}
+
+func TestCompareType(t *testing.T) {
+	c := Condition{ctype: types.Uint, ccase: CaseEq}
+	c.cvalue = uint(100)
+
+	cc := c
+	if !c.Compare(cc) {
+		t.Errorf("should be true")
+	}
+
+	cc.cvalue = uint(1000)
+	if c.Compare(cc) {
+		t.Errorf("should be false")
+	}
+
+	cc = c
+	cc.ccase = CaseNe
+	if c.Compare(cc) {
+		t.Errorf("should be false")
+	}
 }

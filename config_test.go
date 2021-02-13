@@ -22,11 +22,21 @@ import (
 
 func TestConflict(t *testing.T) {
 	cnf := Config{}
-	err := cnf.SetKey("key key2", true)
+	cnfl, err := NewConfigLine(`{"key":["key", "key2"]}`)
 	if err != nil {
-		t.Errorf("set key(true) error:%s", err)
+		t.Fatalf("NewConfigLine error:%s", err)
 	}
-	err = cnf.SetKey("key", false)
+
+	err = cnf.SetExist(cnfl, true)
+	if err != nil {
+		t.Errorf("set exist(true) error:%s", err)
+	}
+
+	cnfl2, err := NewConfigLine(`{"key":"key"}`)
+	if err != nil {
+		t.Fatalf("NewConfigLine error:%s", err)
+	}
+	err = cnf.SetExist(cnfl2, true)
 	if err != nil {
 		t.Errorf("set key(false) error:%s", err)
 	}
@@ -36,7 +46,7 @@ func TestConflict(t *testing.T) {
 		t.Errorf("Validate error: %s", err)
 	}
 
-	err = cnf.SetKey("key key2", false)
+	err = cnf.SetExist(cnfl, false)
 	if err != nil {
 		t.Errorf("set key(false) error:%s", err)
 	}
