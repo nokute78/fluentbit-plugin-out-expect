@@ -14,7 +14,7 @@
    limitations under the License.
 */
 
-package main
+package expect
 
 import (
 	"errors"
@@ -179,12 +179,21 @@ func (c Condition) IsMatch(v interface{}) (bool, error) {
 			return c.matchString(string(ba)), nil
 		}
 	case types.Int:
-		i, ok := v.(int64)
+		i64, ok := v.(int64)
 		if ok {
-			return c.matchInt(int(i)), nil
+			return c.matchInt(int(i64)), nil
 		}
+		i, ok := v.(int)
+		if ok {
+			return c.matchInt(i), nil
+		}
+
 	case types.Uint:
-		u, ok := v.(uint64)
+		u64, ok := v.(uint64)
+		if ok {
+			return c.matchUint(uint(u64)), nil
+		}
+		u, ok := v.(uint)
 		if ok {
 			return c.matchUint(uint(u)), nil
 		}
@@ -193,13 +202,14 @@ func (c Condition) IsMatch(v interface{}) (bool, error) {
 		if ok {
 			return c.matchUint(uint(i)), nil
 		}
+
 	case types.Float64:
 		d, ok := v.(float64)
 		if ok {
 			return c.matchDouble(d), nil
 		}
 	}
-	return false, errors.New("can not cast")
+	return false, fmt.Errorf("can not cast: type=%d\n", c.ctype)
 }
 
 // NewBoolCondition returns Condition c of boolean.

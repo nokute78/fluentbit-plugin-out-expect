@@ -25,6 +25,7 @@ import (
 	"unsafe"
 
 	"github.com/fluent/fluent-bit-go/output"
+	"github.com/nokute78/fluentbit-plugin-out-expect/expect"
 )
 
 func getParameter(p unsafe.Pointer, key string, i int) (string, error) {
@@ -45,29 +46,29 @@ func FLBPluginRegister(def unsafe.Pointer) int {
 // (fluentbit will call this)
 // plugin (context) pointer to fluentbit context (state/ c code)
 func FLBPluginInit(p unsafe.Pointer) int {
-	cnf := Config{}
+	cnf := expect.Config{}
 
 	// Exist
-	for i := 0; i < ParamNumMax; i++ {
-		param, err := getParameter(p, ConfigExistKeyName, i)
+	for i := 0; i < expect.ParamNumMax; i++ {
+		param, err := getParameter(p, expect.ConfigExistKeyName, i)
 		if err == nil {
-			p, err := NewConfigLineFromJson(param)
+			p, err := expect.NewConfigLineFromJson(param)
 			if err != nil {
 				continue
 			}
 			cnf.SetExist(p, true)
 		}
-		param, err = getParameter(p, ConfigNotExistKeyName, i)
+		param, err = getParameter(p, expect.ConfigNotExistKeyName, i)
 		if err == nil {
-			p, err := NewConfigLineFromJson(param)
+			p, err := expect.NewConfigLineFromJson(param)
 			if err != nil {
 				continue
 			}
 			cnf.SetExist(p, false)
 		}
-		param, err = getParameter(p, ConfigBoolKeyName, i)
+		param, err = getParameter(p, expect.ConfigBoolKeyName, i)
 		if err == nil {
-			p, err := NewConfigLineFromJson(param)
+			p, err := expect.NewConfigLineFromJson(param)
 			if err != nil {
 				continue
 			}
@@ -76,9 +77,9 @@ func FLBPluginInit(p unsafe.Pointer) int {
 				log.Printf("bool config error=%s\n", err)
 			}
 		}
-		param, err = getParameter(p, ConfigStrKeyName, i)
+		param, err = getParameter(p, expect.ConfigStrKeyName, i)
 		if err == nil {
-			p, err := NewConfigLineFromJson(param)
+			p, err := expect.NewConfigLineFromJson(param)
 			if err != nil {
 				continue
 			}
@@ -87,9 +88,9 @@ func FLBPluginInit(p unsafe.Pointer) int {
 				log.Printf("string config error=%s\n", err)
 			}
 		}
-		param, err = getParameter(p, ConfigIntKeyName, i)
+		param, err = getParameter(p, expect.ConfigIntKeyName, i)
 		if err == nil {
-			p, err := NewConfigLineFromJson(param)
+			p, err := expect.NewConfigLineFromJson(param)
 			if err != nil {
 				continue
 			}
@@ -98,9 +99,9 @@ func FLBPluginInit(p unsafe.Pointer) int {
 				log.Printf("int config error=%s\n", err)
 			}
 		}
-		param, err = getParameter(p, ConfigUintKeyName, i)
+		param, err = getParameter(p, expect.ConfigUintKeyName, i)
 		if err == nil {
-			p, err := NewConfigLineFromJson(param)
+			p, err := expect.NewConfigLineFromJson(param)
 			if err != nil {
 				continue
 			}
@@ -109,9 +110,9 @@ func FLBPluginInit(p unsafe.Pointer) int {
 				log.Printf("uint config error=%s\n", err)
 			}
 		}
-		param, err = getParameter(p, ConfigDoubleKeyName, i)
+		param, err = getParameter(p, expect.ConfigDoubleKeyName, i)
 		if err == nil {
-			p, err := NewConfigLineFromJson(param)
+			p, err := expect.NewConfigLineFromJson(param)
 			if err != nil {
 				continue
 			}
@@ -142,7 +143,7 @@ func reportsErrors(reports []string, tag *C.char) {
 
 //export FLBPluginFlushCtx
 func FLBPluginFlushCtx(ctx unsafe.Pointer, data unsafe.Pointer, length C.int, tag *C.char) int {
-	cnf, ok := output.FLBPluginGetContext(ctx).(Config)
+	cnf, ok := output.FLBPluginGetContext(ctx).(expect.Config)
 	if !ok {
 		log.Println("[expect] Context Conversion error")
 		return output.FLB_ERROR
