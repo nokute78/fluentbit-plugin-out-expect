@@ -1,5 +1,7 @@
 # fluent-bit-plugin-out-expect
-
+![Go](https://github.com/nokute78/fluentbit-plugin-out-expect/workflows/Go/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/nokute78/fluentbit-plugin-out-expect)](https://goreportcard.com/report/github.com/nokute78/fluentbit-plugin-out-expect)
+[![Go Reference](https://pkg.go.dev/badge/github.com/nokute78/fluentbit-plugin-out-expect.svg)](https://pkg.go.dev/github.com/nokute78/fluentbit-plugin-out-expect)
 Ouput plugin for [Fluent-Bit](https://fluentbit.io/) to verify key/value of record.
 
 ## Feature
