@@ -180,7 +180,7 @@ func FLBPluginFlushCtx(ctx unsafe.Pointer, data unsafe.Pointer, length C.int, ta
 			if err != nil {
 				reports = append(reports, "IsMatch error:"+tc.Keys.FlattenKeys)
 			} else if !b {
-				reports = append(reports, "Not Match condition:"+tc.Keys.FlattenKeys)
+				reports = append(reports, "Not Match: value of "+tc.TypeConditionStr)
 			}
 		}
 

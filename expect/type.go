@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"go/types"
+	"strconv"
 	"strings"
 )
 
@@ -37,8 +38,9 @@ type Condition struct {
 	cvalue interface{}
 }
 type TypeCondition struct {
-	Keys      Keys
-	Condition Condition
+	Keys             Keys
+	Condition        Condition
+	TypeConditionStr string
 }
 
 const (
@@ -74,6 +76,31 @@ func Str2IntCase(s string) int {
 		ret = CaseContains
 	case "not_contains":
 		ret = CaseNotContains
+	}
+	return ret
+}
+
+// IntCase2Str converts int case to string case.
+//  e.g. CaseGe -> ">="
+func IntCase2Str(i int) string {
+	ret := "Invalid"
+	switch i {
+	case CaseGt:
+		ret = ">"
+	case CaseGe:
+		ret = ">="
+	case CaseLt:
+		ret = "<"
+	case CaseLe:
+		ret = "<="
+	case CaseEq:
+		ret = "=="
+	case CaseNe:
+		ret = "!="
+	case CaseContains:
+		ret = "contains"
+	case CaseNotContains:
+		ret = "not_contains"
 	}
 	return ret
 }
@@ -263,7 +290,6 @@ func NewDoubleCondition(c int, d float64) (*Condition, error) {
 		return nil, ErrInvalidCondition
 	}
 	ret := &Condition{ctype: types.Float64, ccase: c, cvalue: d}
-
 	return ret, nil
 }
 
@@ -352,6 +378,41 @@ func (cnf *Config) SetTypeCondition(c *ConfigLine, t types.BasicKind) error {
 		return errors.New("Invalid type")
 	}
 	tc.Condition = *cnd
+	tc.TypeConditionStr = tc.String()
 	cnf.TypeConditions = append(cnf.TypeConditions, *tc)
 	return nil
+}
+
+func (tc TypeCondition) String() string {
+	ret := fmt.Sprintf("%s %s ", tc.Keys.String(), IntCase2Str(tc.Condition.ccase))
+	switch tc.Condition.ctype {
+	case types.Uint:
+		u, ok := tc.Condition.cvalue.(uint)
+		if ok {
+			ret += strconv.FormatUint(uint64(u), 10)
+		}
+	case types.Int:
+		i, ok := tc.Condition.cvalue.(int)
+		if ok {
+			ret += strconv.FormatInt(int64(i), 10)
+		}
+	case types.Float64:
+		f, ok := tc.Condition.cvalue.(float64)
+		if ok {
+			ret += strconv.FormatFloat(f, 'e', -1, 64)
+		}
+	case types.Bool:
+		b, ok := tc.Condition.cvalue.(bool)
+		if ok {
+			if b {
+				ret += "true"
+			} else {
+				ret += "false"
+			}
+		}
+	case types.String:
+		ret += tc.Condition.cvalue.(string)
+	}
+
+	return ret
 }
