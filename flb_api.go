@@ -28,6 +28,8 @@ import (
 	"github.com/nokute78/fluentbit-plugin-out-expect/expect"
 )
 
+const Version = "0.0.1"
+
 func getParameter(p unsafe.Pointer, key string, i int) (string, error) {
 	s := key + strconv.Itoa(i)
 	param := output.FLBPluginConfigKey(p, s)
@@ -47,6 +49,7 @@ func FLBPluginRegister(def unsafe.Pointer) int {
 // plugin (context) pointer to fluentbit context (state/ c code)
 func FLBPluginInit(p unsafe.Pointer) int {
 	cnf := expect.Config{}
+	log.Printf("[expect] Ver: %s\n", Version)
 
 	// Exist
 	for i := 0; i < expect.ParamNumMax; i++ {
@@ -180,7 +183,7 @@ func FLBPluginFlushCtx(ctx unsafe.Pointer, data unsafe.Pointer, length C.int, ta
 			if err != nil {
 				reports = append(reports, "IsMatch error:"+tc.Keys.FlattenKeys)
 			} else if !b {
-				reports = append(reports, "Not Match: value of "+tc.TypeConditionStr)
+				reports = append(reports, "Error. expect: value "+i2str(v)+" of "+tc.TypeConditionStr)
 			}
 		}
 
@@ -191,6 +194,53 @@ func FLBPluginFlushCtx(ctx unsafe.Pointer, data unsafe.Pointer, length C.int, ta
 	}
 
 	return output.FLB_OK
+}
+
+func i2str(v interface{}) string {
+	switch v.(type) {
+	case string:
+		return v.(string)
+	case bool:
+		b := v.(bool)
+		return strconv.FormatBool(b)
+	case int:
+		i := v.(int)
+		return strconv.FormatInt(int64(i), 10)
+	case int8:
+		i := v.(int8)
+		return strconv.FormatInt(int64(i), 10)
+	case int16:
+		i := v.(int16)
+		return strconv.FormatInt(int64(i), 10)
+	case int32:
+		i := v.(int32)
+		return strconv.FormatInt(int64(i), 10)
+	case int64:
+		i := v.(int64)
+		return strconv.FormatInt(i, 10)
+	case uint:
+		i := v.(uint)
+		return strconv.FormatUint(uint64(i), 10)
+	case uint8:
+		i := v.(uint8)
+		return strconv.FormatUint(uint64(i), 10)
+	case uint16:
+		i := v.(uint16)
+		return strconv.FormatUint(uint64(i), 10)
+	case uint32:
+		i := v.(uint32)
+		return strconv.FormatUint(uint64(i), 10)
+	case uint64:
+		i := v.(uint64)
+		return strconv.FormatUint(i, 10)
+	case float32:
+		f := v.(float32)
+		return strconv.FormatFloat(float64(f), 'f', -1, 32)
+	case float64:
+		f := v.(float64)
+		return strconv.FormatFloat(f, 'f', -1, 64)
+	}
+	return ""
 }
 
 //export FLBPluginExit
