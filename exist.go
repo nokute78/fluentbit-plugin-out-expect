@@ -83,7 +83,7 @@ func (cnf *Config) SetExist(c *ConfigLine, isExist bool) error {
 	if c == nil {
 		return errors.New("ConfigLine is nil")
 	}
-	k, err := convertKeys(c.Key)
+	k, err := convertKeys(c.ClKey)
 	if err != nil {
 		return fmt.Errorf("SetExists:%w", err)
 	}

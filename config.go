@@ -46,9 +46,9 @@ func (c Config) Validate() error {
 
 // ConfigLine represents each line of config file.
 type ConfigLine struct {
-	Key       interface{} `json:key` // string or []string
-	Value     interface{} `json:value",omitempty`
-	Condition string      `json:condition,omitempty`
+	ClKey       interface{} `json:"key"` // string or []string
+	ClValue     interface{} `json:"value,omitempty"`
+	ClCondition string      `json:"condition,omitempty"`
 }
 
 // NewConfigLine returns ConfigLine pointer via s.

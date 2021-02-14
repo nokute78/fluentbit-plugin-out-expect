@@ -266,15 +266,15 @@ func (cnf *Config) SetTypeCondition(c *ConfigLine, t types.BasicKind) error {
 	if c == nil {
 		return errors.New("ConfigLine is nil")
 	}
-	k, err := convertKeys(c.Key)
+	k, err := convertKeys(c.ClKey)
 	if err != nil {
 		return fmt.Errorf("SetExists:%w", err)
 	}
 	tc := &TypeCondition{Keys: *k}
-	cnd := &Condition{ctype: t, ccase: Str2IntCase(c.Condition)}
+	cnd := &Condition{ctype: t, ccase: Str2IntCase(c.ClCondition)}
 	switch t {
 	case types.Uint:
-		jn, ok := c.Value.(json.Number)
+		jn, ok := c.ClValue.(json.Number)
 		if !ok {
 			return errors.New("json number convert error")
 		}
@@ -284,7 +284,7 @@ func (cnf *Config) SetTypeCondition(c *ConfigLine, t types.BasicKind) error {
 		}
 		cnd.cvalue = uint(i)
 	case types.Int:
-		jn, ok := c.Value.(json.Number)
+		jn, ok := c.ClValue.(json.Number)
 		if !ok {
 			return errors.New("json number convert error")
 		}
@@ -294,7 +294,7 @@ func (cnf *Config) SetTypeCondition(c *ConfigLine, t types.BasicKind) error {
 		}
 		cnd.cvalue = int(i)
 	case types.Float64:
-		jn, ok := c.Value.(json.Number)
+		jn, ok := c.ClValue.(json.Number)
 		if !ok {
 			return errors.New("json number convert error")
 		}
@@ -304,7 +304,7 @@ func (cnf *Config) SetTypeCondition(c *ConfigLine, t types.BasicKind) error {
 		}
 		cnd.cvalue = i
 	case types.String:
-		s, ok := c.Value.(string)
+		s, ok := c.ClValue.(string)
 		if !ok {
 			return errors.New("json string convert error")
 		}
