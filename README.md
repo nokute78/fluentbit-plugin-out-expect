@@ -35,7 +35,7 @@ Json object:
 |---|----------|-----------|
 |`"key"`      |string or string array|The key name to check if it exists or not. If it is array, it is recognized as nested keys.|
 |`"value"`    |boolean|Checking value.|
-|`"condition"`|string|Checking Condition. `"=="`/`"!="|
+|`"condition"`|string|Checking Condition. `"=="`/`"!="`|
 
 Example:
 |use case| example configuration|
