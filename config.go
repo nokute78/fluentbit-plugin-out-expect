@@ -17,6 +17,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 )
 
@@ -24,9 +25,11 @@ const ParamNumMax = 16
 const ConfigExistKeyName = "key_exists"
 const ConfigNotExistKeyName = "key_not_exists"
 
+// Config represents context of this plugin.
 type Config struct {
-	Exists    []Keys
-	NotExists []Keys
+	Exists         []Keys
+	NotExists      []Keys
+	TypeConditions []TypeCondition
 }
 
 // Validate check if configuration value is ok or not.
@@ -39,4 +42,87 @@ func (c Config) Validate() error {
 		}
 	}
 	return nil
+}
+
+// ConfigLine represents each line of config file.
+type ConfigLine struct {
+	ClKey       interface{} `json:"key"` // string or []string
+	ClValue     interface{} `json:"value,omitempty"`
+	ClCondition string      `json:"condition,omitempty"`
+}
+
+// NewConfigLineFromJson returns ConfigLine pointer via Json s.
+func NewConfigLineFromJson(s string) (*ConfigLine, error) {
+	ret := &ConfigLine{}
+	err := json.Unmarshal([]byte(s), ret)
+	if err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
+// v (string or []string) -> *Keys
+func convertKeys(v interface{}) (*Keys, error) {
+	var ss []string
+	s, ok := v.(string)
+	if ok {
+		if s == "" {
+			return nil, errors.New("blank string")
+		}
+		ss = append(ss, s)
+	} else {
+		ia, ok := v.([]interface{})
+		if !ok {
+			return nil, errors.New("cannot convert key array")
+		}
+		ss = make([]string, len(ia))
+		for i, vv := range ia {
+			ss[i], ok = vv.(string)
+			if !ok {
+				return nil, errors.New("cannot convert key string")
+			} else if ss[i] == "" {
+				return nil, errors.New("blank string")
+			}
+		}
+	}
+	ret := &Keys{Keys: ss}
+	ret.FlattenKeys = ret.String()
+
+	return ret, nil
+}
+
+func containsKeys(keyss []Keys, ks *Keys) bool {
+	if ks == nil || len(ks.Keys) == 0 {
+		return false
+	}
+
+	for _, keys := range keyss {
+		if keys.Compare(*ks) {
+			return true
+		}
+	}
+	return false
+}
+
+// HasExistKeys check if ExistKeys of cnf has ks keys or not.
+func (cnf *Config) HasExistKeys(ks *Keys) bool {
+	return containsKeys(cnf.Exists, ks)
+}
+
+// HasNotExistKeys check if NotExistKeys of cnf has ks keys or not.
+func (cnf *Config) HasNotExistKeys(ks *Keys) bool {
+	return containsKeys(cnf.NotExists, ks)
+}
+
+// HasTypeCondition check if TypeConditions of cnf has t or not.
+func (cnf *Config) HasTypeCondition(t *TypeCondition) bool {
+	if t == nil || len(t.Keys.Keys) == 0 {
+		return false
+	}
+	for _, tc := range cnf.TypeConditions {
+		if tc.Keys.Compare(t.Keys) && tc.Condition.Compare(t.Condition) {
+			return true
+		}
+	}
+	return false
 }

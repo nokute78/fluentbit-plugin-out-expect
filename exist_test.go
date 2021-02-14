@@ -43,52 +43,29 @@ func TestGetValueFromMap(t *testing.T) {
 
 }
 
-func TestSetSpacedKey(t *testing.T) {
-	cnf := &Config{}
-	input := "key   "
-
-	err := cnf.SetKey(input, true)
-	if err != nil {
-		t.Errorf("set key error:%s", err)
-	}
-
-	if len(cnf.Exists) != 1 {
-		t.Errorf("length is %d not 1", len(cnf.Exists))
-	}
-
-}
-
-func TestSetSpacedKeys(t *testing.T) {
-	cnf := &Config{}
-	input := "key   aa aaa bbb   "
-
-	err := cnf.SetKey(input, true)
-	if err != nil {
-		t.Errorf("set key error:%s", err)
-	}
-
-	if len(cnf.Exists[0].Keys) != 4 {
-		t.Errorf("length is %d not 4", len(cnf.Exists[0].Keys))
-	}
-
-}
-
 func TestSetExistSingleKey(t *testing.T) {
 	cnf := &Config{}
-	expect := "keytest"
+	cnfl, err := NewConfigLineFromJson(`{"key":"keytest"}`)
+	if err != nil {
+		t.Errorf("NewConfigLineFromJson err:%s", err)
+	}
 
-	err := cnf.SetKey(expect, true)
+	err = cnf.SetExist(cnfl, true)
 	if err != nil {
 		t.Errorf("set key error:%s", err)
 	}
 
 	if len(cnf.Exists[0].Keys) != 1 {
 		t.Errorf("length is not 1")
-	} else if cnf.Exists[0].Keys[0] != expect {
-		t.Errorf("includes mismatch:\n given :%s\n expect:%s", cnf.Exists[0], expect)
+	} else if cnf.Exists[0].Keys[0] != "keytest" {
+		t.Errorf("includes mismatch:\n given :%s\n expect:%s", cnf.Exists[0], "keytest")
 	}
 
-	err = cnf.SetKey("", true)
+	cnfl, err = NewConfigLineFromJson(`{"key":""}`)
+	if err != nil {
+		t.Errorf("NewConfigLineFromJson err:%s", err)
+	}
+	err = cnf.SetExist(cnfl, true)
 	if err == nil {
 		t.Errorf("blank string should be error")
 	}
@@ -96,13 +73,16 @@ func TestSetExistSingleKey(t *testing.T) {
 
 func TestSetExistKeyTwice(t *testing.T) {
 	cnf := &Config{}
-	expect := "keytest"
-	err := cnf.SetKey(expect, true)
+	cnfl, err := NewConfigLineFromJson(`{"key":"keytest"}`)
+	if err != nil {
+		t.Errorf("NewConfigLineFromJson err:%s", err)
+	}
+	err = cnf.SetExist(cnfl, true)
 	if err != nil {
 		t.Errorf("set key error:%s", err)
 	}
 
-	err = cnf.SetKey(expect, true)
+	err = cnf.SetExist(cnfl, true)
 	if err == nil {
 		t.Errorf("set key twice should be errror")
 	}
@@ -110,14 +90,16 @@ func TestSetExistKeyTwice(t *testing.T) {
 
 func TestSetExistKeys(t *testing.T) {
 	cnf := &Config{}
-	input := "key1 key2 key3"
-	expect := []string{"key1", "key2", "key3"}
-
-	err := cnf.SetKey(input, true)
+	cnfl, err := NewConfigLineFromJson(`{"key":["key1","key2","key3"]}`)
+	if err != nil {
+		t.Errorf("NewConfigLineFromJson err:%s", err)
+	}
+	err = cnf.SetExist(cnfl, true)
 	if err != nil {
 		t.Errorf("set keys error:%s", err)
 	}
 
+	expect := []string{"key1", "key2", "key3"}
 	if len(cnf.Exists[0].Keys) != len(expect) {
 		t.Fatalf("length mismatch:\n given :%d\n expect:%d", len(cnf.Exists[0].Keys), len(expect))
 	}
@@ -130,13 +112,15 @@ func TestSetExistKeys(t *testing.T) {
 
 func TestSetExistKeysTwice(t *testing.T) {
 	cnf := &Config{}
-	input := "key1 key2 key3"
-
-	err := cnf.SetKey(input, true)
+	cnfl, err := NewConfigLineFromJson(`{"key":["key1","key2","key3"]}`)
+	if err != nil {
+		t.Errorf("NewConfigLineFromJson err:%s", err)
+	}
+	err = cnf.SetExist(cnfl, true)
 	if err != nil {
 		t.Errorf("set keys error:%s", err)
 	}
-	err = cnf.SetKey(input, true)
+	err = cnf.SetExist(cnfl, true)
 	if err == nil {
 		t.Errorf("set keys twice should be errror")
 	}
@@ -145,8 +129,11 @@ func TestSetExistKeysTwice(t *testing.T) {
 func TestSetNotExistSingleKey(t *testing.T) {
 	cnf := &Config{}
 	expect := "keytest"
-
-	err := cnf.SetKey(expect, false)
+	cnfl, err := NewConfigLineFromJson(`{"key":"keytest"}`)
+	if err != nil {
+		t.Errorf("NewConfigLineFromJson err:%s", err)
+	}
+	err = cnf.SetExist(cnfl, false)
 	if err != nil {
 		t.Errorf("set key error:%s", err)
 	}
@@ -157,7 +144,11 @@ func TestSetNotExistSingleKey(t *testing.T) {
 		t.Errorf("exclude mismatch:\n given :%s\n expect:%s", cnf.NotExists[0].Keys[0], expect)
 	}
 
-	err = cnf.SetKey("", false)
+	cnfl, err = NewConfigLineFromJson(`{"key":""}`)
+	if err != nil {
+		t.Errorf("NewConfigLineFromJson err:%s", err)
+	}
+	err = cnf.SetExist(cnfl, false)
 	if err == nil {
 		t.Errorf("blank string should be error")
 	}
@@ -165,13 +156,16 @@ func TestSetNotExistSingleKey(t *testing.T) {
 
 func TestSetNotExistKeyTwice(t *testing.T) {
 	cnf := &Config{}
-	expect := "keytest"
-	err := cnf.SetKey(expect, false)
+	cnfl, err := NewConfigLineFromJson(`{"key":"keytest"}`)
+	if err != nil {
+		t.Errorf("NewConfigLineFromJson err:%s", err)
+	}
+	err = cnf.SetExist(cnfl, false)
 	if err != nil {
 		t.Errorf("set key error:%s", err)
 	}
 
-	err = cnf.SetKey(expect, false)
+	err = cnf.SetExist(cnfl, false)
 	if err == nil {
 		t.Errorf("set key twice should be errror")
 	}
@@ -179,10 +173,12 @@ func TestSetNotExistKeyTwice(t *testing.T) {
 
 func TestSetNotExistKeys(t *testing.T) {
 	cnf := &Config{}
-	input := "key1 key2 key3"
 	expect := []string{"key1", "key2", "key3"}
-
-	err := cnf.SetKey(input, false)
+	cnfl, err := NewConfigLineFromJson(`{"key":["key1","key2","key3"]}`)
+	if err != nil {
+		t.Errorf("NewConfigLineFromJson err:%s", err)
+	}
+	err = cnf.SetExist(cnfl, false)
 	if err != nil {
 		t.Errorf("set keys error:%s", err)
 	}
@@ -199,13 +195,15 @@ func TestSetNotExistKeys(t *testing.T) {
 
 func TestSetNotExistKeysTwice(t *testing.T) {
 	cnf := &Config{}
-	input := "key1 key2 key3"
-
-	err := cnf.SetKey(input, false)
+	cnfl, err := NewConfigLineFromJson(`{"key":["key1","key2","key3"]}`)
+	if err != nil {
+		t.Errorf("NewConfigLineFromJson err:%s", err)
+	}
+	err = cnf.SetExist(cnfl, false)
 	if err != nil {
 		t.Errorf("set keys error:%s", err)
 	}
-	err = cnf.SetKey(input, false)
+	err = cnf.SetExist(cnfl, false)
 	if err == nil {
 		t.Errorf("set keys twice should be errror")
 	}

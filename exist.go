@@ -18,7 +18,7 @@ package main
 
 import (
 	"errors"
-	"strings"
+	"fmt"
 )
 
 type Keys struct {
@@ -76,66 +76,28 @@ func (k Keys) Compare(ks Keys) bool {
 	return true
 }
 
-func containsKeys(keyss []Keys, ks Keys) bool {
-	if len(ks.Keys) == 0 {
-		return false
+// SetKey set member variable via c.
+//   If isExist is true, c is treated as ExistKey.
+//   If isExist is false, c is treated as NotExistKey.
+func (cnf *Config) SetExist(c *ConfigLine, isExist bool) error {
+	if c == nil {
+		return errors.New("ConfigLine is nil")
+	}
+	k, err := convertKeys(c.ClKey)
+	if err != nil {
+		return fmt.Errorf("SetExists:%w", err)
 	}
 
-	for _, keys := range keyss {
-		if keys.Compare(ks) {
-			return true
-		}
-	}
-	return false
-}
-
-// IsExistKeys check if ExistKeys of cnf has ks keys or not.
-func (cnf *Config) IsExistKeys(ks Keys) bool {
-	return containsKeys(cnf.Exists, ks)
-}
-
-// IsNotExistKeys check if NotExistKeys of cnf has ks keys or not.
-func (cnf *Config) IsNotExistKeys(ks Keys) bool {
-	return containsKeys(cnf.NotExists, ks)
-}
-
-// SetKey parses input param string and set member variable.
-//   If isExist is true, param is treated as ExistKey.
-//   If isExist is false, param is treated as NotExistKey.
-func (cnf *Config) SetKey(param string, isExist bool) error {
-	if len(param) == 0 {
-		return errors.New("string is blank")
-	}
-	strs := []string{}
-	if strings.Contains(param, " ") {
-		tmp := strings.Split(param, " ")
-		for _, v := range tmp {
-			if len(v) > 0 {
-				strs = append(strs, v)
-			}
-		}
-	} else {
-		strs = append(strs, param)
-	}
-
-	if len(strs) == 0 {
-		return errors.New("config not found")
-	}
-
-	k := Keys{Keys: strs}
 	if isExist {
-		if cnf.IsExistKeys(k) {
+		if cnf.HasExistKeys(k) {
 			return errors.New("already exist")
 		}
-		k.FlattenKeys = k.String()
-		cnf.Exists = append(cnf.Exists, k)
+		cnf.Exists = append(cnf.Exists, *k)
 	} else {
-		if cnf.IsNotExistKeys(k) {
+		if cnf.HasNotExistKeys(k) {
 			return errors.New("already exist")
 		}
-		k.FlattenKeys = k.String()
-		cnf.NotExists = append(cnf.NotExists, k)
+		cnf.NotExists = append(cnf.NotExists, *k)
 	}
-
 	return nil
 }
