@@ -235,6 +235,8 @@ func TestMatchUint(t *testing.T) {
 	}
 	testMatch(t, c, uint(100), true)
 	testMatch(t, c, uint(10), false)
+	testMatch(t, c, 100, true)
+	testMatch(t, c, 10, false)
 
 	c, err = NewUintCondition(CaseNe, 100)
 	if err != nil {
@@ -242,6 +244,8 @@ func TestMatchUint(t *testing.T) {
 	}
 	testMatch(t, c, uint(100), false)
 	testMatch(t, c, uint(10), true)
+	testMatch(t, c, 100, false)
+	testMatch(t, c, 10, true)
 
 	c, err = NewUintCondition(CaseGt, 100)
 	if err != nil {
@@ -250,6 +254,9 @@ func TestMatchUint(t *testing.T) {
 	testMatch(t, c, uint(100), false)
 	testMatch(t, c, uint(10), false)
 	testMatch(t, c, uint(1000), true)
+	testMatch(t, c, 100, false)
+	testMatch(t, c, 10, false)
+	testMatch(t, c, 1000, true)
 
 	c, err = NewUintCondition(CaseGe, 100)
 	if err != nil {
@@ -258,6 +265,9 @@ func TestMatchUint(t *testing.T) {
 	testMatch(t, c, uint(100), true)
 	testMatch(t, c, uint(10), false)
 	testMatch(t, c, uint(1000), true)
+	testMatch(t, c, 100, true)
+	testMatch(t, c, 10, false)
+	testMatch(t, c, 1000, true)
 
 	c, err = NewUintCondition(CaseLt, 100)
 	if err != nil {
@@ -266,6 +276,9 @@ func TestMatchUint(t *testing.T) {
 	testMatch(t, c, uint(100), false)
 	testMatch(t, c, uint(10), true)
 	testMatch(t, c, uint(1000), false)
+	testMatch(t, c, 100, false)
+	testMatch(t, c, 10, true)
+	testMatch(t, c, 1000, false)
 
 	c, err = NewUintCondition(CaseLe, 100)
 	if err != nil {
@@ -274,6 +287,9 @@ func TestMatchUint(t *testing.T) {
 	testMatch(t, c, uint(100), true)
 	testMatch(t, c, uint(10), true)
 	testMatch(t, c, uint(1000), false)
+	testMatch(t, c, 100, true)
+	testMatch(t, c, 10, true)
+	testMatch(t, c, 1000, false)
 }
 
 func TestMatchDouble(t *testing.T) {
@@ -366,5 +382,4 @@ func TestSetUint(t *testing.T) {
 	if tc.Condition.ccase != CaseEq {
 		t.Errorf("case mismatch:\n given :%d\n expect :%d", tc.Condition.ccase, CaseEq)
 	}
-
 }

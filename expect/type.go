@@ -206,37 +206,84 @@ func (c Condition) IsMatch(v interface{}) (bool, error) {
 			return c.matchString(string(ba)), nil
 		}
 	case types.Int:
-		i64, ok := v.(int64)
-		if ok {
-			return c.matchInt(int(i64)), nil
-		}
-		i, ok := v.(int)
-		if ok {
+		switch v.(type) {
+		case int64:
+			i := v.(int64)
+			return c.matchInt(int(i)), nil
+		case int32:
+			i := v.(int32)
+			return c.matchInt(int(i)), nil
+		case int16:
+			i := v.(int16)
+			return c.matchInt(int(i)), nil
+		case int8:
+			i := v.(int8)
+			return c.matchInt(int(i)), nil
+		case int:
+			i := v.(int)
 			return c.matchInt(i), nil
+		case uint64:
+			i := v.(uint64)
+			return c.matchInt(int(i)), nil
+		case uint32:
+			i := v.(uint32)
+			return c.matchInt(int(i)), nil
+		case uint16:
+			i := v.(uint16)
+			return c.matchInt(int(i)), nil
+		case uint8:
+			i := v.(uint8)
+			return c.matchInt(int(i)), nil
+		case uint:
+			i := v.(uint)
+			return c.matchInt(int(i)), nil
 		}
 
 	case types.Uint:
-		u64, ok := v.(uint64)
-		if ok {
-			return c.matchUint(uint(u64)), nil
-		}
-		u, ok := v.(uint)
-		if ok {
-			return c.matchUint(uint(u)), nil
-		}
-		// may send as int64
-		i, ok := v.(int64)
-		if ok {
+		switch v.(type) {
+		case uint64:
+			i := v.(uint64)
+			return c.matchUint(uint(i)), nil
+		case uint32:
+			i := v.(uint32)
+			return c.matchUint(uint(i)), nil
+		case uint16:
+			i := v.(uint16)
+			return c.matchUint(uint(i)), nil
+		case uint8:
+			i := v.(uint8)
+			return c.matchUint(uint(i)), nil
+		case uint:
+			i := v.(uint)
+			return c.matchUint(i), nil
+		case int64:
+			i := v.(int64)
+			return c.matchUint(uint(i)), nil
+		case int32:
+			i := v.(int32)
+			return c.matchUint(uint(i)), nil
+		case int16:
+			i := v.(int16)
+			return c.matchUint(uint(i)), nil
+		case int8:
+			i := v.(int8)
+			return c.matchUint(uint(i)), nil
+		case int:
+			i := v.(int)
 			return c.matchUint(uint(i)), nil
 		}
 
 	case types.Float64:
-		d, ok := v.(float64)
-		if ok {
+		switch v.(type) {
+		case float64:
+			d := v.(float64)
 			return c.matchDouble(d), nil
+		case float32:
+			d := v.(float32)
+			return c.matchDouble(float64(d)), nil
 		}
 	}
-	return false, fmt.Errorf("can not cast: type=%d\n", c.ctype)
+	return false, fmt.Errorf("can not cast: type=%d v=%s\n", c.ctype, v)
 }
 
 // NewBoolCondition returns Condition c of boolean.
