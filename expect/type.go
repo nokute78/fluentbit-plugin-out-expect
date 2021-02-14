@@ -464,39 +464,6 @@ func (cnf *Config) SetTypeCondition(c *ConfigLine, t types.BasicKind) error {
 }
 
 func (tc TypeCondition) String() string {
-	/*
-			ret := fmt.Sprintf("%s %s ", tc.Keys.String(), IntCase2Str(tc.Condition.ccase))
-
-			switch tc.Condition.ctype {
-			case types.Uint:
-				u, ok := tc.Condition.cvalue.(uint)
-				if ok {
-					ret += strconv.FormatUint(uint64(u), 10)
-				}
-			case types.Int:
-				i, ok := tc.Condition.cvalue.(int)
-				if ok {
-					ret += strconv.FormatInt(int64(i), 10)
-				}
-			case types.Float64:
-				f, ok := tc.Condition.cvalue.(float64)
-				if ok {
-					ret += strconv.FormatFloat(f, 'e', -1, 64)
-				}
-			case types.Bool:
-				b, ok := tc.Condition.cvalue.(bool)
-				if ok {
-					if b {
-						ret += "true"
-					} else {
-						ret += "false"
-					}
-				}
-			case types.String:
-				ret += tc.Condition.cvalue.(string)
-			}
-		return ret
-	*/
 	return fmt.Sprintf("%s %s", tc.Keys.String(), tc.Condition.String())
 
 }
