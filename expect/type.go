@@ -302,7 +302,7 @@ func (c Condition) String() string {
 	case types.Float64:
 		f, ok := c.cvalue.(float64)
 		if ok {
-			ret += strconv.FormatFloat(f, 'e', -1, 64)
+			ret += strconv.FormatFloat(f, 'f', -1, 64)
 		}
 	case types.Bool:
 		b, ok := c.cvalue.(bool)
