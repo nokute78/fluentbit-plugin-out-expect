@@ -345,3 +345,26 @@ func TestCompareType(t *testing.T) {
 		t.Errorf("should be false")
 	}
 }
+
+func TestSetUint(t *testing.T) {
+	cnf := &Config{}
+	cnfl, err := NewConfigLineFromJson(`{"key":"key","value":100, "condition":"=="}`)
+	if err != nil {
+		t.Errorf("NewConfigLine err:%s", err)
+	}
+	err = cnf.SetTypeCondition(cnfl, types.Uint)
+	if err != nil {
+		t.Fatalf("SetTypeCondition err:%s", err)
+	}
+	if len(cnf.TypeConditions) != 1 {
+		t.Fatalf("len(cnf.TypeConditions)=%d != 1", len(cnf.TypeConditions))
+	}
+	tc := cnf.TypeConditions[0]
+	if tc.Condition.ctype != types.Uint {
+		t.Errorf("type mismatch:\n given :%d\n expect :%d", tc.Condition.ctype, types.Uint)
+	}
+	if tc.Condition.ccase != CaseEq {
+		t.Errorf("case mismatch:\n given :%d\n expect :%d", tc.Condition.ccase, CaseEq)
+	}
+
+}

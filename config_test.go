@@ -22,17 +22,17 @@ import (
 
 func TestConflict(t *testing.T) {
 	cnf := Config{}
-	cnfl, err := NewConfigLine(`{"key":["key", "key2"]}`)
+	cnfl, err := NewConfigLineFromJson(`{"key":["key","key2"]}`)
 	if err != nil {
 		t.Fatalf("NewConfigLine error:%s", err)
 	}
 
 	err = cnf.SetExist(cnfl, true)
 	if err != nil {
-		t.Errorf("set exist(true) error:%s", err)
+		t.Errorf("set exist(true) error:%s %+v", err, cnfl)
 	}
 
-	cnfl2, err := NewConfigLine(`{"key":"key"}`)
+	cnfl2, err := NewConfigLineFromJson(`{"key":"key"}`)
 	if err != nil {
 		t.Fatalf("NewConfigLine error:%s", err)
 	}

@@ -17,7 +17,6 @@
 package main
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"go/types"
@@ -71,6 +70,10 @@ func Str2IntCase(s string) int {
 		ret = CaseEq
 	case "!=":
 		ret = CaseNe
+	case "contains":
+		ret = CaseContains
+	case "not_contains":
+		ret = CaseNotContains
 	}
 	return ret
 }
@@ -170,15 +173,25 @@ func (c Condition) IsMatch(v interface{}) (bool, error) {
 		if ok {
 			return c.matchString(s), nil
 		}
-	case types.Int:
-		i, ok := v.(int)
+		// may send byte slice
+		ba, ok := v.([]byte)
 		if ok {
-			return c.matchInt(i), nil
+			return c.matchString(string(ba)), nil
+		}
+	case types.Int:
+		i, ok := v.(int64)
+		if ok {
+			return c.matchInt(int(i)), nil
 		}
 	case types.Uint:
-		i, ok := v.(uint)
+		u, ok := v.(uint64)
 		if ok {
-			return c.matchUint(i), nil
+			return c.matchUint(uint(u)), nil
+		}
+		// may send as int64
+		i, ok := v.(int64)
+		if ok {
+			return c.matchUint(uint(i)), nil
 		}
 	case types.Float64:
 		d, ok := v.(float64)
@@ -258,6 +271,8 @@ func (c Condition) Compare(ic Condition) bool {
 		return c.cvalue.(float64) == ic.cvalue.(float64)
 	case types.String:
 		return c.cvalue.(string) == ic.cvalue.(string)
+	case types.Bool:
+		return c.cvalue.(bool) == ic.cvalue.(bool)
 	}
 	return false
 }
@@ -271,44 +286,58 @@ func (cnf *Config) SetTypeCondition(c *ConfigLine, t types.BasicKind) error {
 		return fmt.Errorf("SetExists:%w", err)
 	}
 	tc := &TypeCondition{Keys: *k}
-	cnd := &Condition{ctype: t, ccase: Str2IntCase(c.ClCondition)}
+	cnd := &Condition{}
 	switch t {
 	case types.Uint:
-		jn, ok := c.ClValue.(json.Number)
+		jn, ok := c.ClValue.(float64)
 		if !ok {
-			return errors.New("json number convert error")
+			return fmt.Errorf("json number convert error. type=%T", c.ClValue)
 		}
-		i, err := jn.Int64()
+		i := uint(jn)
+		cnd, err = NewUintCondition(Str2IntCase(c.ClCondition), i)
 		if err != nil {
-			return fmt.Errorf("json.Number.Int64() err:%s", err)
+			return fmt.Errorf("NewUintCondition err:%s", err)
 		}
-		cnd.cvalue = uint(i)
+
 	case types.Int:
-		jn, ok := c.ClValue.(json.Number)
+		jn, ok := c.ClValue.(float64)
 		if !ok {
 			return errors.New("json number convert error")
 		}
-		i, err := jn.Int64()
+		i := int(jn)
+		cnd, err = NewIntCondition(Str2IntCase(c.ClCondition), i)
 		if err != nil {
-			return fmt.Errorf("json.Number.Int64() err:%s", err)
+			return fmt.Errorf("NewIntCondition err:%s", err)
 		}
-		cnd.cvalue = int(i)
+
 	case types.Float64:
-		jn, ok := c.ClValue.(json.Number)
+		jn, ok := c.ClValue.(float64)
 		if !ok {
 			return errors.New("json number convert error")
 		}
-		i, err := jn.Float64()
+		cnd, err = NewDoubleCondition(Str2IntCase(c.ClCondition), jn)
 		if err != nil {
-			return fmt.Errorf("json.Number.Int64() err:%s", err)
+			return fmt.Errorf("NewDoubleCondition err:%s", err)
 		}
-		cnd.cvalue = i
 	case types.String:
 		s, ok := c.ClValue.(string)
 		if !ok {
 			return errors.New("json string convert error")
 		}
-		cnd.cvalue = s
+		cnd, err = NewStringCondition(Str2IntCase(c.ClCondition), s)
+		if err != nil {
+			return fmt.Errorf("NewStringCondition err:%s", err)
+		}
+	case types.Bool:
+		b, ok := c.ClValue.(bool)
+		if !ok {
+			return fmt.Errorf("json bool convert error type=%T", c.ClValue)
+		}
+		cnd, err = NewBoolCondition(Str2IntCase(c.ClCondition), b)
+		if err != nil {
+			return fmt.Errorf("NewBoolCondition err:%s", err)
+		}
+
 	default:
 		return errors.New("Invalid type")
 	}

@@ -45,9 +45,9 @@ func TestGetValueFromMap(t *testing.T) {
 
 func TestSetExistSingleKey(t *testing.T) {
 	cnf := &Config{}
-	cnfl, err := NewConfigLine(`{"key":"keytest"}`)
+	cnfl, err := NewConfigLineFromJson(`{"key":"keytest"}`)
 	if err != nil {
-		t.Errorf("NewConfigLine err:%s", err)
+		t.Errorf("NewConfigLineFromJson err:%s", err)
 	}
 
 	err = cnf.SetExist(cnfl, true)
@@ -61,9 +61,9 @@ func TestSetExistSingleKey(t *testing.T) {
 		t.Errorf("includes mismatch:\n given :%s\n expect:%s", cnf.Exists[0], "keytest")
 	}
 
-	cnfl, err = NewConfigLine(`{"key":""}`)
+	cnfl, err = NewConfigLineFromJson(`{"key":""}`)
 	if err != nil {
-		t.Errorf("NewConfigLine err:%s", err)
+		t.Errorf("NewConfigLineFromJson err:%s", err)
 	}
 	err = cnf.SetExist(cnfl, true)
 	if err == nil {
@@ -73,9 +73,9 @@ func TestSetExistSingleKey(t *testing.T) {
 
 func TestSetExistKeyTwice(t *testing.T) {
 	cnf := &Config{}
-	cnfl, err := NewConfigLine(`{"key":"keytest"}`)
+	cnfl, err := NewConfigLineFromJson(`{"key":"keytest"}`)
 	if err != nil {
-		t.Errorf("NewConfigLine err:%s", err)
+		t.Errorf("NewConfigLineFromJson err:%s", err)
 	}
 	err = cnf.SetExist(cnfl, true)
 	if err != nil {
@@ -90,9 +90,9 @@ func TestSetExistKeyTwice(t *testing.T) {
 
 func TestSetExistKeys(t *testing.T) {
 	cnf := &Config{}
-	cnfl, err := NewConfigLine(`{"key":["key1","key2","key3"]}`)
+	cnfl, err := NewConfigLineFromJson(`{"key":["key1","key2","key3"]}`)
 	if err != nil {
-		t.Errorf("NewConfigLine err:%s", err)
+		t.Errorf("NewConfigLineFromJson err:%s", err)
 	}
 	err = cnf.SetExist(cnfl, true)
 	if err != nil {
@@ -112,9 +112,9 @@ func TestSetExistKeys(t *testing.T) {
 
 func TestSetExistKeysTwice(t *testing.T) {
 	cnf := &Config{}
-	cnfl, err := NewConfigLine(`{"key":["key1","key2","key3"]}`)
+	cnfl, err := NewConfigLineFromJson(`{"key":["key1","key2","key3"]}`)
 	if err != nil {
-		t.Errorf("NewConfigLine err:%s", err)
+		t.Errorf("NewConfigLineFromJson err:%s", err)
 	}
 	err = cnf.SetExist(cnfl, true)
 	if err != nil {
@@ -129,9 +129,9 @@ func TestSetExistKeysTwice(t *testing.T) {
 func TestSetNotExistSingleKey(t *testing.T) {
 	cnf := &Config{}
 	expect := "keytest"
-	cnfl, err := NewConfigLine(`{"key":"keytest"}`)
+	cnfl, err := NewConfigLineFromJson(`{"key":"keytest"}`)
 	if err != nil {
-		t.Errorf("NewConfigLine err:%s", err)
+		t.Errorf("NewConfigLineFromJson err:%s", err)
 	}
 	err = cnf.SetExist(cnfl, false)
 	if err != nil {
@@ -144,9 +144,9 @@ func TestSetNotExistSingleKey(t *testing.T) {
 		t.Errorf("exclude mismatch:\n given :%s\n expect:%s", cnf.NotExists[0].Keys[0], expect)
 	}
 
-	cnfl, err = NewConfigLine(`{"key":""}`)
+	cnfl, err = NewConfigLineFromJson(`{"key":""}`)
 	if err != nil {
-		t.Errorf("NewConfigLine err:%s", err)
+		t.Errorf("NewConfigLineFromJson err:%s", err)
 	}
 	err = cnf.SetExist(cnfl, false)
 	if err == nil {
@@ -156,9 +156,9 @@ func TestSetNotExistSingleKey(t *testing.T) {
 
 func TestSetNotExistKeyTwice(t *testing.T) {
 	cnf := &Config{}
-	cnfl, err := NewConfigLine(`{"key":"keytest"}`)
+	cnfl, err := NewConfigLineFromJson(`{"key":"keytest"}`)
 	if err != nil {
-		t.Errorf("NewConfigLine err:%s", err)
+		t.Errorf("NewConfigLineFromJson err:%s", err)
 	}
 	err = cnf.SetExist(cnfl, false)
 	if err != nil {
@@ -174,9 +174,9 @@ func TestSetNotExistKeyTwice(t *testing.T) {
 func TestSetNotExistKeys(t *testing.T) {
 	cnf := &Config{}
 	expect := []string{"key1", "key2", "key3"}
-	cnfl, err := NewConfigLine(`{"key":["key1","key2","key3"]}`)
+	cnfl, err := NewConfigLineFromJson(`{"key":["key1","key2","key3"]}`)
 	if err != nil {
-		t.Errorf("NewConfigLine err:%s", err)
+		t.Errorf("NewConfigLineFromJson err:%s", err)
 	}
 	err = cnf.SetExist(cnfl, false)
 	if err != nil {
@@ -195,9 +195,9 @@ func TestSetNotExistKeys(t *testing.T) {
 
 func TestSetNotExistKeysTwice(t *testing.T) {
 	cnf := &Config{}
-	cnfl, err := NewConfigLine(`{"key":["key1","key2","key3"]}`)
+	cnfl, err := NewConfigLineFromJson(`{"key":["key1","key2","key3"]}`)
 	if err != nil {
-		t.Errorf("NewConfigLine err:%s", err)
+		t.Errorf("NewConfigLineFromJson err:%s", err)
 	}
 	err = cnf.SetExist(cnfl, false)
 	if err != nil {

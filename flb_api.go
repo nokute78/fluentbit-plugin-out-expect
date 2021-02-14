@@ -19,6 +19,7 @@ package main
 import (
 	"C"
 	"errors"
+	"go/types"
 	"log"
 	"strconv"
 	"unsafe"
@@ -50,7 +51,7 @@ func FLBPluginInit(p unsafe.Pointer) int {
 	for i := 0; i < ParamNumMax; i++ {
 		param, err := getParameter(p, ConfigExistKeyName, i)
 		if err == nil {
-			p, err := NewConfigLine(param)
+			p, err := NewConfigLineFromJson(param)
 			if err != nil {
 				continue
 			}
@@ -58,11 +59,66 @@ func FLBPluginInit(p unsafe.Pointer) int {
 		}
 		param, err = getParameter(p, ConfigNotExistKeyName, i)
 		if err == nil {
-			p, err := NewConfigLine(param)
+			p, err := NewConfigLineFromJson(param)
 			if err != nil {
 				continue
 			}
 			cnf.SetExist(p, false)
+		}
+		param, err = getParameter(p, ConfigBoolKeyName, i)
+		if err == nil {
+			p, err := NewConfigLineFromJson(param)
+			if err != nil {
+				continue
+			}
+			err = cnf.SetTypeCondition(p, types.Bool)
+			if err != nil {
+				log.Printf("bool config error=%s\n", err)
+			}
+		}
+		param, err = getParameter(p, ConfigStrKeyName, i)
+		if err == nil {
+			p, err := NewConfigLineFromJson(param)
+			if err != nil {
+				continue
+			}
+			err = cnf.SetTypeCondition(p, types.String)
+			if err != nil {
+				log.Printf("string config error=%s\n", err)
+			}
+		}
+		param, err = getParameter(p, ConfigIntKeyName, i)
+		if err == nil {
+			p, err := NewConfigLineFromJson(param)
+			if err != nil {
+				continue
+			}
+			err = cnf.SetTypeCondition(p, types.Int)
+			if err != nil {
+				log.Printf("int config error=%s\n", err)
+			}
+		}
+		param, err = getParameter(p, ConfigUintKeyName, i)
+		if err == nil {
+			p, err := NewConfigLineFromJson(param)
+			if err != nil {
+				continue
+			}
+			err = cnf.SetTypeCondition(p, types.Uint)
+			if err != nil {
+				log.Printf("uint config error=%s\n", err)
+			}
+		}
+		param, err = getParameter(p, ConfigDoubleKeyName, i)
+		if err == nil {
+			p, err := NewConfigLineFromJson(param)
+			if err != nil {
+				continue
+			}
+			err = cnf.SetTypeCondition(p, types.Float64)
+			if err != nil {
+				log.Printf("double config error=%s\n", err)
+			}
 		}
 	}
 
@@ -111,6 +167,19 @@ func FLBPluginFlushCtx(ctx unsafe.Pointer, data unsafe.Pointer, length C.int, ta
 			_, ok := keys.GetValueFromMap(record)
 			if ok {
 				reports = append(reports, "Not Exist key found:"+keys.FlattenKeys)
+			}
+		}
+		for _, tc := range cnf.TypeConditions {
+			v, ok := tc.Keys.GetValueFromMap(record)
+			if !ok {
+				reports = append(reports, "Key not found:"+tc.Keys.FlattenKeys)
+				continue
+			}
+			b, err := tc.Condition.IsMatch(v)
+			if err != nil {
+				reports = append(reports, "IsMatch error:"+tc.Keys.FlattenKeys)
+			} else if !b {
+				reports = append(reports, "Not Match condition:"+tc.Keys.FlattenKeys)
 			}
 		}
 

@@ -51,8 +51,8 @@ type ConfigLine struct {
 	ClCondition string      `json:"condition,omitempty"`
 }
 
-// NewConfigLine returns ConfigLine pointer via s.
-func NewConfigLine(s string) (*ConfigLine, error) {
+// NewConfigLineFromJson returns ConfigLine pointer via Json s.
+func NewConfigLineFromJson(s string) (*ConfigLine, error) {
 	ret := &ConfigLine{}
 	err := json.Unmarshal([]byte(s), ret)
 	if err != nil {
